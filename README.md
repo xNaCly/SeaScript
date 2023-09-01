@@ -8,6 +8,14 @@ SeaScript is a small language that compiles to C.
 $ cat main.sea
 put "Hello (Sea)World!"
 $ seacc main.sea
+$ cat main.c
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(void) {
+  puts("Hello (SeaWorld)");
+  return EXIT_SUCCESS;
+}
 ```
 
 ## Syntax
