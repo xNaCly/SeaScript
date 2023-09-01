@@ -5,14 +5,14 @@ SeaScript is a small language that compiles to C.
 ## Compiler usage
 
 ```
-$ cat main.sc
+$ cat main.sea
 put "Hello (Sea)World!"
-$ seacc main.sc
+$ seacc main.sea
 ```
 
 ## Syntax
 
-```sc
+```seascript
 :: variables
 age = 24
 money = 129.01
