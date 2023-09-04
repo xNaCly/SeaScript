@@ -1,6 +1,20 @@
 # SeaScript
 
-SeaScript is a small language that compiles to C.
+SeaScript is a small language that compiles to C. SeaScript is intended to improve the c experience drastically with the following features:
+
+- result types
+- functions attached to structs
+- omitting most of the typ declarations
+- providing useful datastructures, such as growing arrays and hash maps
+- 0 cost abstractions for functional approaches, such as filter, map, forEach
+- template strings
+- booleans
+
+SeaScript is designed to automatically provide allocation and deallocation for
+datastructures and abstractions. The goal is to compute valid, performant and
+safe c while allowing the developer to use a language thats minimal, nice to
+read and that provides the base line of features required for modern
+applications.
 
 ## Compiler usage
 
@@ -21,6 +35,9 @@ int main(void) {
 ## Syntax
 
 ```seascript
+:: include header files
+#include <math.h>
+
 :: variables
 age = 24
 money = 129.01
@@ -43,12 +60,38 @@ printer2n [a: number, b: number]: void -> printf("%d %d\n", a, b)
 :: calling functions
 printer2n(square(12), square(2))
 
+:: c block
+@c{
+    void print(int a, int b) {
+        printf("%d %d\n", a, b);
+    }
+}
+
+:: using functions defined in c block
+print(1,2)
+
+:: results
+sqrt [n:number]: Result[number] -> {
+    if n < 0 {
+        return Result{error: "can't compute sqrt for negative numbers"}
+    }
+    res = sqrt(n)
+    if res < 0 {
+        return Result{error: "couldn't compute sqrt of {n}"}
+    }
+    return Result{value: res}
+}
+
+:: consuming results
+res = sqrt(-5).unwrap() :: this will fail and stop the process
+print(res)
+
 :: structs
 person = {
     age: 24,
     money: 102_910.99,
     name: "seal",
-    toString [s: self]: string -> "${s.name} | ${s.age} | ${s.money}",
+    toString [s: self]: string -> "{s.name} | {s.age} | {s.money}",
 }
 
 :: accessing struct properties

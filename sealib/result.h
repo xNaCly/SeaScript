@@ -1,8 +1,8 @@
 /*
 The result.h component exposes utilites for a sophisticated error handling
-approach, inspired by rust. It allows for definiting functions that return
-Results instead of values of their type that indicate failure, such as -1
-for numeric operations or an empty string for string operations.
+approach, inspired by rust. It allows for defining functions that return
+results instead of special values of their type that indicate failure, such as
+-1 for numeric operations or an empty string for string operations.
 
 Guide for using this sealib component:
 
