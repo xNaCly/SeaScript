@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 SeaScriptResult *SeaScriptResultNewSuccess(void *value) {
-  SeaScriptResult *result;
+  SeaScriptResult *result = NULL;
   result = malloc(sizeof(SeaScriptResult));
   result->value = value;
   result->hasError = 0;
@@ -11,7 +11,7 @@ SeaScriptResult *SeaScriptResultNewSuccess(void *value) {
 };
 
 SeaScriptResult *SeaScriptResultNewError(const char *error) {
-  SeaScriptResult *result;
+  SeaScriptResult *result = NULL;
   result = malloc(sizeof(SeaScriptResult));
   result->error = error;
   result->hasError = 1;
@@ -30,6 +30,7 @@ void *SeaScriptResultExpect(SeaScriptResult *result, const char *error) {
   SeaScriptResultFree(result);
   return value;
 }
+
 void *SeaScriptResultUnwrap(SeaScriptResult *result) {
   if (result == NULL)
     return NULL;

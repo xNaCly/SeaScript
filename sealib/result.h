@@ -1,8 +1,8 @@
 /*
 The result.h component exposes utilites for a sophisticated error handling
 approach, inspired by rust. It allows for defining functions that return
-results instead of special values of their type that indicate failure, such as
--1 for numeric operations or an empty string for string operations.
+SeaScriptResult instead of special values of their type that indicate failure,
+such as -1 for numeric operations or an empty string for string operations.
 
 Guide for using this sealib component:
 
@@ -13,12 +13,16 @@ Guide for using this sealib component:
       return SeaScriptResultNewError(
           "can't compute square root of negative integer");
     }
-    double r = sqrt(n);
+    double *r = malloc(sizeof(double))
+    *r = sqrt(n);
     if (r < 0) {
       return SeaScriptResultNewError("failed to compute square root");
     }
-    return SeaScriptResultNewSuccess((void *)&r);
+    return SeaScriptResultNewSuccess(r);
   }
+
+(remember to allocate the value you want to escape to the heap and free it
+afterwards)
 
 2. Call this function
 
@@ -27,19 +31,22 @@ Guide for using this sealib component:
 3. Use one of the following functions to extract the value of the
 SeaScriptResult and thereby consume it:
 
-  *(double *) SeaScriptResultUnwrap(res)
-  *(double *) SeaScriptResultExpect(res, "failed to compute sqrt")
+  double res = *(double *) SeaScriptResultUnwrap(res)
+  res = *(double *) SeaScriptResultExpect(res, "failed to compute sqrt")
+  free(res)
  */
 #ifndef RESULT_H
 #define RESULT_H
 
-typedef struct SeaScriptResult {
+#include <stdint.h>
+
+typedef struct {
   // if the Result holds no error, this contains the success value
   void *value;
   // if the Result holds an error, this contains the error message
   const char *error;
   // this indicates if the Result holds an error
-  int hasError;
+  int8_t hasError;
 } SeaScriptResult;
 
 // allocates a new Result, sets ->hasError to 0 and ->value to the given value
