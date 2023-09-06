@@ -1,5 +1,5 @@
 sealib = $(shell find ./sealib -name "*.c")
 
 test:
-	$(CC) $(sealib) -o test.out
+	$(CC) $(sealib) -O2 -lm -o test.out
 	./test.out
