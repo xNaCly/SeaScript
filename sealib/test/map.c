@@ -2,6 +2,7 @@
 #include "../result.h"
 #include "test.h"
 #include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,17 +15,25 @@ SeaScriptMap *createMap() {
 
 void appendMap(SeaScriptMap *m) {
   tlog("entry putting");
-  for (int i = 1; i < 100; i++) {
+  for (int i = 1; i < 1000; i++) {
     double *val = malloc(sizeof(double));
     *val = i * i;
-    SeaScriptMapPut(m, i, val);
+    SeaScriptMapPut(m, i, (void *)val);
   }
-  assert(m->size == 99);
+  assert(m->size == 999);
+}
+
+void containsMap(SeaScriptMap *m) {
+  tlog("entry contain check");
+  for (int i = 1; i < 1000; i++) {
+    bool r = SeaScriptMapContains(m, i);
+    assert(r);
+  }
 }
 
 void getMap(SeaScriptMap *m) {
   tlog("entry getting");
-  for (int i = 1; i < 100; i++) {
+  for (int i = 1; i < 1000; i++) {
     double r = *(double *)SeaScriptResultUnwrap(SeaScriptMapGet(m, i));
     assert(r == i * i);
   }
@@ -32,7 +41,7 @@ void getMap(SeaScriptMap *m) {
 
 void deleteMap(SeaScriptMap *m) {
   tlog("entry deletion");
-  for (int i = 1; i < 100; i++) {
+  for (int i = 1; i < 1000; i++) {
     double *r = (double *)SeaScriptResultUnwrap(SeaScriptMapGet(m, i));
     free(r);
     SeaScriptMapRemove(m, i);
@@ -63,6 +72,7 @@ void example() {
 void testMap() {
   SeaScriptMap *m = createMap();
   appendMap(m);
+  containsMap(m);
   getMap(m);
   deleteMap(m);
   freeMap(m);

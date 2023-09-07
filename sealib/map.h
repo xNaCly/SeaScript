@@ -10,9 +10,10 @@ golden ration for the following hashing formula:
     - m is the table size
     - A is the golden ratio
 
-The hash table does currently not contain any linear probing, therefore
-collisions are to be expected for more than 100 simultaneously existing
-elements in the table.
+While inserting elements into the hash tables bucket, linear probing is
+performed if said bucket is already occupied. This can deteriorate the hash
+tables performance when putting or getting - mind the load factor for a healthy
+table.
 
 Guide for using this component:
 
@@ -50,12 +51,15 @@ Guide for using this component:
 #define MAP_H
 
 #include "result.h"
+#include <bits/stdint-intn.h>
 #include <math.h>
+#include <stdbool.h>
 #define INITIAL_SIZE 1024
 
 typedef struct {
   int key;
   void *value;
+  int8_t hasValue;
 } SeaScriptMapElement;
 
 typedef struct {
@@ -70,16 +74,20 @@ typedef struct {
   SeaScriptMapElement *entries;
 } SeaScriptMap;
 
-// allocates a new map
+// allocates a new map, with size of INITIAL_SIZE, performs initial golden
+// ration computation
 SeaScriptMap *SeaScriptMapNew();
 
-// insert value for key into map
-void SeaScriptMapPut(SeaScriptMap *map, int key, void *value);
+// copies value, insert copy for key into map, mind the load factor!
+void SeaScriptMapPut(SeaScriptMap *map, unsigned int key, void *value);
 
-// get an pointer to an value from the map via key
-SeaScriptResult *SeaScriptMapGet(SeaScriptMap *map, int key);
+// checks if an object with the given key is present in the map
+bool SeaScriptMapContains(SeaScriptMap *m, unsigned int key);
 
-// remove an object with the given key
+// get a pointer to a value from the map by key
+SeaScriptResult *SeaScriptMapGet(SeaScriptMap *map, unsigned int key);
+
+// remove an object with the given key from the map
 void SeaScriptMapRemove(SeaScriptMap *map, int key);
 
 // destroy the map, set point to NULL
