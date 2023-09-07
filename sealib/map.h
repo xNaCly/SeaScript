@@ -1,19 +1,23 @@
 /*
 The map.h component exposes a very rudimentary hash table. The API makes use of
-SeaScriptResult. The hashing is implemented with multiplication and uses the
-golden ration for the following hashing formula:
+SeaScriptResult.
 
-    h(x) = m*A*x % m
+The hash table hashes keys using the FNV-1a algorithm. It's used because its
+faster than the previously used multiplication hash algorithm.
 
-    Where
-    - x is the key to hash
-    - m is the table size
-    - A is the golden ratio
+    hash = FNV_OFFSET_BASIS
 
-While inserting elements into the hash tables bucket, linear probing is
-performed if said bucket is already occupied. This can deteriorate the hash
-tables performance when putting or getting - mind the load factor for a healthy
-table.
+    for byte in bytes
+        hash ^= byte
+        hash *= FNV_PRIME
+
+Both FNV_PRIME and FNV_OFFSET_BASIS were taken from:
+https://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function#FNV-1a_hash .
+
+While inserting elements into the hash tables bucket, linear
+probing is performed if said bucket is already occupied. This can deteriorate
+the hash tables performance when putting or getting - mind the load factor for
+a healthy table.
 
 Guide for using this component:
 
@@ -39,33 +43,21 @@ Guide for using this component:
     assert(*r1 == 25 * 25);
     assert(*r1 == 50 * 50);
 
-4. Remove elements from the map:
-
-    free(&r1);
-    free(&r2);
-
-    SeaScriptMapRemove(m, 25);
-    SeaScriptMapRemove(m, 50);
  */
 #ifndef MAP_H
 #define MAP_H
 
 #include "result.h"
-#include <bits/stdint-intn.h>
-#include <math.h>
 #include <stdbool.h>
 #define INITIAL_SIZE 1024
 
 typedef struct {
-  int key;
+  const char *key;
   void *value;
-  int8_t hasValue;
+  char hasValue;
 } SeaScriptMapElement;
 
 typedef struct {
-  // contains golden ration constant for hashing:
-  // https://en.wikipedia.org/wiki/Golden_ratio
-  double golden_ratio;
   // elements count
   int size;
   // possible space
@@ -79,16 +71,16 @@ typedef struct {
 SeaScriptMap *SeaScriptMapNew();
 
 // copies value, insert copy for key into map, mind the load factor!
-void SeaScriptMapPut(SeaScriptMap *map, unsigned int key, void *value);
+void SeaScriptMapPut(SeaScriptMap *map, const char *key, void *value);
 
 // checks if an object with the given key is present in the map
-bool SeaScriptMapContains(SeaScriptMap *m, unsigned int key);
+bool SeaScriptMapContains(SeaScriptMap *m, const char *key);
 
 // get a pointer to a value from the map by key
-SeaScriptResult *SeaScriptMapGet(SeaScriptMap *map, unsigned int key);
+SeaScriptResult *SeaScriptMapGet(SeaScriptMap *map, const char *key);
 
 // remove an object with the given key from the map
-void SeaScriptMapRemove(SeaScriptMap *map, int key);
+void SeaScriptMapRemove(SeaScriptMap *map, const char *key);
 
 // destroy the map, set point to NULL
 void SeaScriptMapFree(SeaScriptMap *map);

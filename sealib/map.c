@@ -2,11 +2,20 @@
 #include "result.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+const unsigned int FNV_OFFSET_BASIS = 0x811c9dc5;
+const unsigned int FNV_PRIME = 0x01000193;
 
 // see map.h preamble for hashing algorithm details
-static unsigned int hash_key(SeaScriptMap *m, unsigned int key) {
-  unsigned int mul = floor(m->table_size * m->golden_ratio * key);
-  return mul % m->table_size;
+static unsigned int hash_key(SeaScriptMap *m, const char *key) {
+  int length = strlen(key);
+  unsigned int h = FNV_OFFSET_BASIS;
+  for (int i = 0; i < length; i++) {
+    h ^= (unsigned char)key[i];
+    h *= FNV_PRIME;
+  }
+  return h % m->table_size;
 }
 
 // The performance of the hash table deteriorates in relation to the load
@@ -20,32 +29,45 @@ static double load_factor(SeaScriptMap *m) {
 
 SeaScriptMap *SeaScriptMapNew() {
   SeaScriptMap *m = malloc(sizeof(SeaScriptMap));
-  m->golden_ratio = (1.0 + sqrt(5)) / 2.0;
   m->size = 0;
   m->table_size = INITIAL_SIZE;
   m->entries = calloc(INITIAL_SIZE, sizeof(SeaScriptMapElement));
   return m;
 };
 
-bool SeaScriptMapContains(SeaScriptMap *m, unsigned int key) {
+bool SeaScriptMapContains(SeaScriptMap *m, const char *key) {
   unsigned int hash = hash_key(m, key);
   SeaScriptMapElement entry = m->entries[hash];
-  while (entry.hasValue && entry.key != key) {
+  int i = 0;
+  while (entry.key != 0 && strcmp(key, entry.key) != 0) {
+    if (i >= m->table_size)
+      break;
     hash = (hash + 1) % m->table_size;
     entry = m->entries[hash];
+    i++;
   }
-  return entry.key == key && entry.hasValue;
+  if (entry.value == NULL)
+    return false;
+  return strcmp(key, entry.key) == 0;
 }
 
-void SeaScriptMapPut(SeaScriptMap *m, unsigned int key, void *value) {
-  if (m->size == m->table_size) {
+void SeaScriptMapPut(SeaScriptMap *m, const char *key, void *value) {
+  if (m->size == m->table_size || load_factor(m) > 0.99) {
+    fprintf(
+        stderr,
+        "failed to put into map at key %s - map either full or deteriorated\n",
+        key);
     return;
   }
   unsigned int hash = hash_key(m, key);
   SeaScriptMapElement entry = m->entries[hash];
-  while (entry.hasValue && entry.key != key) {
+  int i = 0;
+  while (entry.hasValue && strcmp(key, entry.key) != 0) {
+    if (i >= m->table_size)
+      break;
     hash = (hash + 1) % m->table_size;
     entry = m->entries[hash];
+    i++;
   }
   m->entries[hash].key = key;
   m->entries[hash].value = value;
@@ -53,29 +75,43 @@ void SeaScriptMapPut(SeaScriptMap *m, unsigned int key, void *value) {
   m->size++;
 };
 
-SeaScriptResult *SeaScriptMapGet(SeaScriptMap *m, unsigned int key) {
+SeaScriptResult *SeaScriptMapGet(SeaScriptMap *m, const char *key) {
   unsigned int hash = hash_key(m, key);
-  if (&m->entries[hash] == NULL) {
-    return SeaScriptResultNewError("key not found");
-  }
   SeaScriptMapElement entry = m->entries[hash];
-  while (entry.hasValue && entry.key != key) {
+  int i = 0;
+  while (entry.key != 0 && strcmp(key, entry.key) != 0) {
+    if (i >= m->table_size)
+      break;
     hash = (hash + 1) % m->table_size;
     entry = m->entries[hash];
+    i++;
   }
+  if (entry.value == NULL) {
+    return SeaScriptResultNewError("key not found");
+  }
+
   return SeaScriptResultNewSuccess(m->entries[hash].value);
 }
 
-void SeaScriptMapRemove(SeaScriptMap *m, int key) {
-  unsigned int hash = hash_key(m, key);
-  if (&m->entries[hash] == NULL) {
-    return;
-  }
-  m->entries[hash].key = 0;
-  m->entries[hash].value = NULL;
-  m->entries[hash].hasValue = 0;
-  m->size--;
-}
+// TODO: fix this
+/* void SeaScriptMapRemove(SeaScriptMap *m, const char *key) { */
+/*   unsigned int hash = hash_key(m, key); */
+/*   SeaScriptMapElement entry = m->entries[hash]; */
+/*   int i = 0; */
+/*   while (entry.key != 0 && strcmp(key, entry.key) != 0) { */
+/*     if (i >= m->table_size) */
+/*       break; */
+/*     hash = (hash + 1) % m->table_size; */
+/*     entry = m->entries[hash]; */
+/*     i++; */
+/*   } */
+/*   if (entry.value == NULL || entry.hasValue == 0) */
+/*     return; */
+/*   m->entries[hash].key = 0; */
+/*   m->entries[hash].value = NULL; */
+/*   m->entries[hash].hasValue = 0; */
+/*   m->size--; */
+/* } */
 
 void SeaScriptMapFree(SeaScriptMap *m) {
   if (m == NULL) {
