@@ -38,7 +38,7 @@ int main(void) {
 
 ```seascript
 :: include header files
-#include <math.h>
+#include <stdio.h>
 
 :: variables
 age = 24
@@ -46,21 +46,21 @@ money = 129.01
 name = "anon"
 
 :: lists
-list = [5, 4, 3, 2, 1]
-friends = ["jonathan", "mike"]
+list = [5 4 3 2 1]
+friends = ["jonathan" "mike"]
 
 :: functions
-square [n: number]: number -> {
-    n2 = n * n
-    :: implicit return
-    n2
+square [n: number]: number {
+    return n*n
 }
 
 :: single line function
-printer2n [a: number, b: number]: void -> printf("%d %d\n", a, b)
+printer2n [a: number b: number]: void {
+    printf("%d %d\n" a b)
+}
 
 :: calling functions
-printer2n(square(12), square(2))
+printer2n(square(12) square(2))
 
 :: c block
 @c{
@@ -70,10 +70,10 @@ printer2n(square(12), square(2))
 }
 
 :: using functions defined in c block
-print(1,2)
+print(1 2)
 
 :: results
-sqrt [n:number]: Result[number] -> {
+sqrt [n: number]: Result[number] {
     if n < 0 {
         return Result{error: "can't compute sqrt for negative numbers"}
     }
@@ -93,11 +93,13 @@ person = {
     age: 24,
     money: 102_910.99,
     name: "seal",
-    toString [s: self]: string -> "{s.name} | {s.age} | {s.money}",
+    toString [s: self]: string {
+        return "{s.name} | {s.age} | {s.money}",
+    }
 }
 
 :: accessing struct properties
-isTeenager = person.age > 13 and person.age < 20
+isTeenager = person.age > 13 && person.age < 20
 
 :: updating struct properties
 if isTeenager {

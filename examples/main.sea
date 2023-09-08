@@ -1,12 +1,34 @@
+:: include header files
 #include <stdio.h>
 
-printer [n1: string n2: string]: void {
-    printf("%s %s\n" n1 n2)
-}
+:: variables
+age = 24
+money = 129.01
+name = "anon"
 
+:: lists
+list = [5 4 3 2 1]
+friends = ["jonathan" "mike"]
+
+:: functions
 square [n: number]: number {
     return n*n
 }
 
-printer("test" "test")
-printf("%f\n" square(12))
+:: single line function
+printer2n [a: number b: number]: void { 
+    printf("%d %d\n" a b)
+}
+
+:: calling functions
+printer2n(square(12) square(2))
+
+:: c block
+@c{
+    void print(int a, int b) {
+        printf("%d %d\n", a, b);
+    }
+}
+
+:: using functions defined in c block
+print(1 2)
