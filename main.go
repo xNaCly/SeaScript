@@ -1,7 +1,7 @@
 package main
 
 import (
-	"seascript/core"
+	"seacc/core"
 )
 
 func main() {

@@ -2,7 +2,7 @@ package debug
 
 import (
 	"fmt"
-	"seascript/core/expr"
+	"seacc/core/expr"
 	"strings"
 )
 

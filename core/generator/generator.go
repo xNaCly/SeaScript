@@ -2,23 +2,23 @@ package generator
 
 import (
 	"fmt"
-	"seascript/core/expr"
-	"seascript/core/lexer"
-	"seascript/core/token"
+	"seacc/core/expr"
+	"seacc/core/lexer"
+	"seacc/core/token"
 	"strings"
 	"time"
 )
 
-const template = `// generated from seascript (%s)
+const template = `// generated from seacc (%s)
 #include <stdlib.h>
 %s
 
-int seascript_main(int argc, char **argv) {
+int seacc_main(int argc, char **argv) {
 %sreturn EXIT_SUCCESS; 
 }
 
 int main(int argc, char **argv) { 
-    return seascript_main(argc, argv); 
+    return seacc_main(argc, argv); 
 }
 `
 

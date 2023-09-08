@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"io"
 	"log"
-	"seascript/core/token"
+	"seacc/core/token"
 	"strings"
 	"unicode"
 )

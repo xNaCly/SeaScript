@@ -1,7 +1,7 @@
 package expr
 
 import (
-	"seascript/core/token"
+	"seacc/core/token"
 	"strings"
 )
 
@@ -15,6 +15,7 @@ func (p *Preprocessor) GetToken() token.Token {
 
 func (p *Preprocessor) CodeGen(b *strings.Builder) {
 	b.WriteString(p.Token.Raw)
+	b.WriteRune('\n')
 }
 
 func (p *Preprocessor) Print(b *strings.Builder, ident int) {

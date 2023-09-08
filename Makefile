@@ -8,7 +8,8 @@ flags = -Wall \
 make:
 	mkdir -p gen
 	go run . -i examples/main.sea -o gen/main.c -force -debug
-	cat gen/main.c
+	$(CC) gen/main.c $(flags) -o gen/a.out
+	./gen/a.out
 
 test:
 	$(CC) $(sealib) $(test) $(flags) -o test.out

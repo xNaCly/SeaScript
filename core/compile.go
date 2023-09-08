@@ -5,10 +5,10 @@ import (
 	"flag"
 	"log"
 	"os"
-	"seascript/core/debug"
-	"seascript/core/generator"
-	"seascript/core/lexer"
-	"seascript/core/parser"
+	"seacc/core/debug"
+	"seacc/core/generator"
+	"seacc/core/lexer"
+	"seacc/core/parser"
 )
 
 func Compile() {

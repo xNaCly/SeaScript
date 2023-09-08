@@ -2,7 +2,7 @@ package debug
 
 import (
 	"fmt"
-	"seascript/core/token"
+	"seacc/core/token"
 	"strings"
 )
 

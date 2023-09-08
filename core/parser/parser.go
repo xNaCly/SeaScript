@@ -2,8 +2,8 @@ package parser
 
 import (
 	"log"
-	"seascript/core/expr"
-	"seascript/core/token"
+	"seacc/core/expr"
+	"seacc/core/token"
 	"strings"
 )
 

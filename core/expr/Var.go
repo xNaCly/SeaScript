@@ -1,8 +1,8 @@
 package expr
 
 import (
-	"seascript/core/consts"
-	"seascript/core/token"
+	"seacc/core/consts"
+	"seacc/core/token"
 	"strings"
 )
 

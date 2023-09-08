@@ -5,14 +5,15 @@ SeaScript is a small language that compiles to C. SeaScript is intended to impro
 - result types
 - functions attached to structs
 - omitting most of the typ declarations
-- providing useful datastructures, such as growing arrays and hash maps
+- providing useful data structures, such as growing arrays and hash maps
 - 0 cost abstractions for functional approaches, such as filter, map, forEach
 - template strings
 - booleans
+- 0 cost interoperability with the c ecosystem
 
 SeaScript is designed to automatically provide allocation and deallocation for
-datastructures and abstractions. The goal is to compute valid, performant and
-safe c while allowing the developer to use a language thats minimal, nice to
+data structures and abstractions. The goal is to compute valid, performant and
+safe c while allowing the developer to use a language that's minimal, nice to
 read and that provides the base line of features required for modern
 applications.
 
@@ -20,6 +21,7 @@ applications.
 
 ```
 $ cat main.sea
+#include <stdio.h>
 puts("Hello (Sea)World!")
 $ seacc main.sea
 $ cat main.c
