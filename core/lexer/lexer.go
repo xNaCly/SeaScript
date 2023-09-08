@@ -66,8 +66,26 @@ func (l *Lexer) Lex() []token.Token {
 			continue
 		case '(':
 			t = token.BRACE_LEFT
+		case '+', '-', '*', '/', '%':
+			raw := []rune{l.cc, ' '}
+			if l.peekMatch('+') || l.peekMatch('-') {
+				l.advance()
+				raw[1] = l.cc
+			}
+			tok = append(tok, token.Token{
+				Pos:  l.pos,
+				Line: l.line,
+				Type: token.SYMBOL,
+				Raw:  string(raw),
+			})
+			l.advance()
+			continue
 		case ')':
 			t = token.BRACE_RIGHT
+		case '[':
+			t = token.BRACKET_LEFT
+		case ']':
+			t = token.BRACKET_RIGHT
 		case '{':
 			t = token.CURLY_LEFT
 		case '}':
@@ -249,8 +267,13 @@ func (l *Lexer) ident() token.Token {
 	str := builder.String()
 	builder.Reset()
 
+	t := token.IDENT
+	if str == "true" || str == "false" {
+		t = token.BOOL
+	}
+
 	return token.Token{
-		Type: token.IDENT,
+		Type: t,
 		Pos:  l.pos - len(str),
 		Line: l.line,
 		Raw:  str,

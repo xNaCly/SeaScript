@@ -5,21 +5,24 @@ type TokenType int8
 const (
 	UNKNOWN TokenType = iota
 
-	PREPROCESSOR
-	CBLOCK
 	FUNC
-	SEMICOLON
-
+	BOOL
 	IDENT
 
 	// symbols
+	SEMICOLON
 	EQUAL
+	SYMBOL
 
 	// structure
+	PREPROCESSOR
+	CBLOCK
 	BRACE_LEFT
 	BRACE_RIGHT
 	CURLY_LEFT
 	CURLY_RIGHT
+	BRACKET_LEFT
+	BRACKET_RIGHT
 
 	// constants
 	NUMBER
@@ -29,18 +32,22 @@ const (
 )
 
 var LOOKUP = map[TokenType]string{
-	UNKNOWN:      "UNKNOWN",
-	SEMICOLON:    "SEMICOLON",
-	PREPROCESSOR: "PREPROCESSOR",
-	CBLOCK:       "CBLOCK",
-	FUNC:         "FUNC",
-	IDENT:        "IDENT",
-	EQUAL:        "EQUAL",
-	BRACE_LEFT:   "BRACE_LEFT",
-	BRACE_RIGHT:  "BRACE_RIGHT",
-	CURLY_LEFT:   "CURLY_LEFT",
-	CURLY_RIGHT:  "CURLY_RIGHT",
-	NUMBER:       "NUMBER",
-	STRING:       "STRING",
-	EOF:          "EOF",
+	UNKNOWN:       "UNKNOWN",
+	SYMBOL:        "SYMBOL",
+	PREPROCESSOR:  "PREPROCESSOR",
+	CBLOCK:        "CBLOCK",
+	FUNC:          "FUNC",
+	BOOL:          "BOOL",
+	SEMICOLON:     "SEMICOLON",
+	IDENT:         "IDENT",
+	EQUAL:         "EQUAL",
+	BRACE_LEFT:    "BRACE_LEFT",
+	BRACE_RIGHT:   "BRACE_RIGHT",
+	CURLY_LEFT:    "CURLY_LEFT",
+	CURLY_RIGHT:   "CURLY_RIGHT",
+	BRACKET_LEFT:  "BRACKET_LEFT",
+	BRACKET_RIGHT: "BRACKET_RIGHT",
+	NUMBER:        "NUMBER",
+	STRING:        "STRING",
+	EOF:           "EOF",
 }

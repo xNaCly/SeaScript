@@ -1,12 +1,29 @@
 #include <stdio.h>
 
-:: this is a comment :)
+list = [5 4 3 2 1]
+friends = ["jonathan" "mike"]
+isCool = true
+
 @c{
-    void hello(const char *str, double age) {
-        printf("hello %s %f!\n", str, age);
+    void printString(const char *str) {
+        while(*str != '\0') {
+            printf("%c", *str);
+            str++;
+        }
+        printf("\n");
+    }
+
+    void printLists(double list[], const char *friends[]) {
+        for(int i = 0; i < 5; i++) {
+            printf("%f ", list[i]);
+        }
+        printf("\n");
+        for(int i = 0; i < 2; i++) {
+            printf("%s ", friends[i]);
+        }
     }
 }
-age = 75.5
-name = "teo"
-hello(name age)
 
+myName = "xnacly"
+printString(myName)
+printLists(list friends)

@@ -11,6 +11,7 @@ import (
 
 const template = `// generated from seacc (%s)
 #include <stdlib.h>
+#include <stdbool.h>
 %s
 
 int seacc_main(int argc, char **argv) {

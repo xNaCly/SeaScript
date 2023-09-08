@@ -27,6 +27,8 @@ func (p *Parser) Parse() []expr.Node {
 			n = &expr.CBlock{Token: p.peek()}
 		case token.PREPROCESSOR:
 			n = &expr.Preprocessor{Token: p.peek()}
+		case token.SYMBOL:
+			n = &expr.Symbol{Token: p.peek()}
 		case token.SEMICOLON:
 			n = &expr.Semi{Token: p.peek()}
 		default:
@@ -46,6 +48,10 @@ func (p *Parser) parseConstant() expr.Node {
 		n = &expr.String{Token: p.peek()}
 	case token.NUMBER:
 		n = &expr.Number{Token: p.peek()}
+	case token.BOOL:
+		n = &expr.Bool{Token: p.peek()}
+	case token.BRACKET_LEFT:
+		return p.array()
 	case token.IDENT:
 		if p.peekNext().Type == token.BRACE_LEFT {
 			return p.functionCall()
@@ -61,12 +67,38 @@ func (p *Parser) parseConstant() expr.Node {
 	return n
 }
 
-// TODO: parse arrays
+func (p *Parser) array() expr.Node {
+	n := &expr.Array{Token: p.peek(), Elements: make([]expr.Node, 0)}
+	p.matchConsumeOrError(token.BRACKET_LEFT)
+	for !p.peekEquals(token.BRACKET_RIGHT) && !p.peekEquals(token.EOF) {
+		n.Elements = append(n.Elements, p.parseConstant())
+	}
+
+	p.matchAndError(token.EOF)
+
+	p.matchConsumeOrError(token.BRACKET_RIGHT)
+
+	for i := 0; i < len(n.Elements); i++ {
+		if i+1 < len(n.Elements) {
+			ct := n.Elements[i].GetToken()
+			nt := n.Elements[i+1].GetToken()
+			if ct.Type != nt.Type {
+				log.Panicf("Differing types in array, element at pos %d is of type %q, element at pos %d isn't (%q) (line: %d)", ct.Pos, token.LOOKUP[ct.Type], nt.Pos, token.LOOKUP[nt.Type], nt.Line)
+			}
+		}
+	}
+
+	if len(n.Elements) > 0 {
+		n.Type = n.Elements[0].GetToken().Type
+	}
+
+	return n
+}
+
 func (p *Parser) variableDef() expr.Node {
 	n := &expr.Var{Token: p.peek()}
 	p.advance()
 	p.matchConsumeOrError(token.EQUAL)
-	p.matchAnyOrError(token.STRING, token.IDENT, token.NUMBER)
 	n.Value = p.parseConstant()
 	return n
 }
@@ -82,7 +114,6 @@ func (p *Parser) functionCall() expr.Node {
 	p.matchConsumeOrError(token.BRACE_LEFT)
 
 	for !p.peekEquals(token.BRACE_RIGHT) && !p.peekEquals(token.EOF) {
-		p.matchAnyOrError(token.STRING, token.IDENT, token.NUMBER)
 		n.Arguments = append(n.Arguments, p.parseConstant())
 	}
 

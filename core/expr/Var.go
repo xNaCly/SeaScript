@@ -17,13 +17,27 @@ func (v *Var) GetToken() token.Token {
 
 func (v *Var) CodeGen(b *strings.Builder) {
 	variableType := consts.NUMBER
-	switch v.Value.GetToken().Type {
-	case token.STRING:
+	arr := false
+	switch v.Value.(type) {
+	case *Bool:
+		variableType = consts.BOOL
+	case *String:
 		variableType = consts.STRING
+	case *Array:
+		if val, _ := v.Value.(*Array); val.Type != 0 {
+			switch val.Type {
+			case token.STRING:
+				variableType = consts.STRING
+			}
+		}
+		arr = true
 	}
 	b.WriteString(consts.TYPE_MAP[variableType])
 	b.WriteRune(' ')
 	b.WriteString(v.Token.Raw)
+	if arr {
+		b.WriteString("[]")
+	}
 	if v.Value != nil {
 		b.WriteRune('=')
 		v.Value.CodeGen(b)
