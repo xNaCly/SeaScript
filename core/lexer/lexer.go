@@ -52,7 +52,13 @@ func (l *Lexer) Lex() []token.Token {
 			// add semicolons on newline, if last tok is available, not a semicolon, not a c
 			// block or not a preprocessor instruction
 			if len(tok) > 0 {
-				if MatchTokens(tok[len(tok)-1].Type, token.CBLOCK, token.PREPROCESSOR, token.SEMICOLON) {
+				if MatchTokens(
+					tok[len(tok)-1].Type,
+					token.CBLOCK,
+					token.PREPROCESSOR,
+					token.CURLY_LEFT,
+					token.CURLY_RIGHT,
+					token.SEMICOLON) {
 					l.advance()
 					continue
 				}
@@ -78,6 +84,7 @@ func (l *Lexer) Lex() []token.Token {
 				Type: token.SYMBOL,
 				Raw:  string(raw),
 			})
+
 			l.advance()
 			continue
 		case ')':
@@ -101,6 +108,8 @@ func (l *Lexer) Lex() []token.Token {
 					l.advance()
 				}
 				continue
+			} else {
+				t = token.COLON
 			}
 		default:
 			if unicode.IsLetter(l.cc) || l.cc == '_' {
@@ -270,6 +279,8 @@ func (l *Lexer) ident() token.Token {
 	t := token.IDENT
 	if str == "true" || str == "false" {
 		t = token.BOOL
+	} else if _, ok := token.KEYWORDS[str]; ok {
+		t = token.KEYWORD
 	}
 
 	return token.Token{

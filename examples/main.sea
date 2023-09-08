@@ -1,29 +1,12 @@
 #include <stdio.h>
 
-list = [5 4 3 2 1]
-friends = ["jonathan" "mike"]
-isCool = true
-
-@c{
-    void printString(const char *str) {
-        while(*str != '\0') {
-            printf("%c", *str);
-            str++;
-        }
-        printf("\n");
-    }
-
-    void printLists(double list[], const char *friends[]) {
-        for(int i = 0; i < 5; i++) {
-            printf("%f ", list[i]);
-        }
-        printf("\n");
-        for(int i = 0; i < 2; i++) {
-            printf("%s ", friends[i]);
-        }
-    }
+printer [n1: string n2: string]: void {
+    printf("%s %s\n" n1 n2)
 }
 
-myName = "xnacly"
-printString(myName)
-printLists(list friends)
+square [n: number]: number {
+    return n*n
+}
+
+printer("test" "test")
+printf("%f\n" square(12))

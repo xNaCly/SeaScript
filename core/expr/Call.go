@@ -28,7 +28,7 @@ func (c *Call) CodeGen(b *strings.Builder) {
 
 func (c *Call) Print(b *strings.Builder, ident int) {
 	b.WriteString(strings.Repeat(" ", ident))
-	b.WriteString(token.LOOKUP[token.FUNC])
+	b.WriteString("CALL")
 	b.WriteRune('#')
 	b.WriteString(c.Token.Raw)
 	b.WriteRune('\n')

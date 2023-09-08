@@ -1,5 +1,9 @@
 package token
 
+var KEYWORDS = map[string]struct{}{
+	"return": {},
+}
+
 type Token struct {
 	Pos  int
 	Line int

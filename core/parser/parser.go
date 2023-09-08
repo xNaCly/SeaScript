@@ -7,6 +7,10 @@ import (
 	"strings"
 )
 
+func todo(str string) {
+	log.Panicln(str)
+}
+
 type Parser struct {
 	tokens []token.Token
 	pos    int
@@ -21,22 +25,7 @@ func New(tokens []token.Token) *Parser {
 func (p *Parser) Parse() []expr.Node {
 	ast := make([]expr.Node, 0)
 	for !p.peekEquals(token.EOF) {
-		var n expr.Node
-		switch p.peek().Type {
-		case token.CBLOCK:
-			n = &expr.CBlock{Token: p.peek()}
-		case token.PREPROCESSOR:
-			n = &expr.Preprocessor{Token: p.peek()}
-		case token.SYMBOL:
-			n = &expr.Symbol{Token: p.peek()}
-		case token.SEMICOLON:
-			n = &expr.Semi{Token: p.peek()}
-		default:
-			ast = append(ast, p.parseConstant())
-			continue
-		}
-		ast = append(ast, n)
-		p.advance()
+		ast = append(ast, p.parseConstant())
 	}
 	return ast
 }
@@ -44,12 +33,22 @@ func (p *Parser) Parse() []expr.Node {
 func (p *Parser) parseConstant() expr.Node {
 	var n expr.Node
 	switch p.peek().Type {
+	case token.CBLOCK:
+		n = &expr.CBlock{Token: p.peek()}
+	case token.PREPROCESSOR:
+		n = &expr.Preprocessor{Token: p.peek()}
+	case token.SYMBOL:
+		n = &expr.Symbol{Token: p.peek()}
+	case token.KEYWORD:
+		n = &expr.Keyword{Token: p.peek()}
 	case token.STRING:
 		n = &expr.String{Token: p.peek()}
 	case token.NUMBER:
 		n = &expr.Number{Token: p.peek()}
 	case token.BOOL:
 		n = &expr.Bool{Token: p.peek()}
+	case token.SEMICOLON:
+		n = &expr.Semi{Token: p.peek()}
 	case token.BRACKET_LEFT:
 		return p.array()
 	case token.IDENT:
@@ -57,13 +56,54 @@ func (p *Parser) parseConstant() expr.Node {
 			return p.functionCall()
 		} else if p.peekNext().Type == token.EQUAL {
 			return p.variableDef()
+		} else if p.peekNext().Type == token.BRACKET_LEFT {
+			return p.functionDef()
 		} else {
 			n = &expr.Ident{Token: p.peek()}
 		}
 	default:
-		log.Panic("unimplemented")
+		todo("unimplemented: " + token.LOOKUP[p.peek().Type])
 	}
 	p.advance()
+	return n
+}
+
+func (p *Parser) parseFunctionParam() expr.Node {
+	t := p.peek()
+	p.matchConsumeOrError(token.IDENT)
+	p.matchConsumeOrError(token.COLON)
+	ty := p.peek().Raw
+	p.matchConsumeOrError(token.IDENT)
+
+	return &expr.Arg{
+		Token: t,
+		Type:  ty,
+	}
+}
+
+func (p *Parser) functionDef() expr.Node {
+	t := p.peek()
+	t.Type = token.FUNC
+	n := &expr.Func{
+		Token:     t,
+		Arguments: make([]expr.Node, 0),
+		Body:      make([]expr.Node, 0),
+	}
+	p.advance()
+	p.matchConsumeOrError(token.BRACKET_LEFT)
+	for !p.peekEquals(token.BRACKET_RIGHT) && !p.peekEquals(token.EOF) {
+		n.Arguments = append(n.Arguments, p.parseFunctionParam())
+	}
+	p.matchConsumeOrError(token.BRACKET_RIGHT)
+	p.matchConsumeOrError(token.COLON)
+	n.Type = p.peek().Raw
+	p.matchConsumeOrError(token.IDENT)
+	p.matchConsumeOrError(token.CURLY_LEFT)
+	for !p.peekEquals(token.CURLY_RIGHT) && !p.peekEquals(token.EOF) {
+		n.Body = append(n.Body, p.parseConstant())
+	}
+	p.matchAndError(token.EOF)
+	p.matchConsumeOrError(token.CURLY_RIGHT)
 	return n
 }
 

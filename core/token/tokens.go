@@ -6,11 +6,13 @@ const (
 	UNKNOWN TokenType = iota
 
 	FUNC
+	KEYWORD
 	BOOL
 	IDENT
 
 	// symbols
 	SEMICOLON
+	COLON
 	EQUAL
 	SYMBOL
 
@@ -35,6 +37,7 @@ var LOOKUP = map[TokenType]string{
 	UNKNOWN:       "UNKNOWN",
 	SYMBOL:        "SYMBOL",
 	PREPROCESSOR:  "PREPROCESSOR",
+	COLON:         "COLON",
 	CBLOCK:        "CBLOCK",
 	FUNC:          "FUNC",
 	BOOL:          "BOOL",
