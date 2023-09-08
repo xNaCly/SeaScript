@@ -6,7 +6,9 @@ flags = -Wall \
 		-g \
 		-O2
 make:
-	go run . -i main.sea
+	mkdir -p gen
+	go run . -i examples/main.sea -o gen/main.c -force -debug
+	cat gen/main.c
 
 test:
 	$(CC) $(sealib) $(test) $(flags) -o test.out
