@@ -15,7 +15,6 @@ func (s *Semi) GetToken() token.Token {
 
 func (s *Semi) CodeGen(b *strings.Builder) {
 	b.WriteRune(';')
-	b.WriteRune('\n')
 }
 
 func (s *Semi) Print(b *strings.Builder, ident int) {

@@ -14,7 +14,7 @@ func (s *Symbol) GetToken() token.Token {
 }
 
 func (s *Symbol) CodeGen(b *strings.Builder) {
-	b.WriteString(s.Token.Raw)
+	b.WriteString(strings.TrimSpace(s.Token.Raw))
 }
 
 func (s *Symbol) Print(b *strings.Builder, ident int) {

@@ -62,6 +62,11 @@ printer2n [a: number b: number]: void {
 :: calling functions
 printer2n(square(12) square(2))
 
+:: iterating over lists
+list.each(n {
+    printf("%f\n" n)
+})
+
 :: c block
 @c{
     void print(int a, int b) {

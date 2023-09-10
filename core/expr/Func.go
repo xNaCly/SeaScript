@@ -36,11 +36,11 @@ func (f *Func) CodeGen(b *strings.Builder) {
 			b.WriteRune(',')
 		}
 	}
-	b.WriteString("){\n")
+	b.WriteString("){")
 	for _, a := range f.Body {
 		a.CodeGen(b)
 	}
-	b.WriteString("}\n")
+	b.WriteString("}")
 }
 
 func (f *Func) Print(b *strings.Builder, ident int) {
