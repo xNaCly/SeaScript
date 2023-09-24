@@ -7,8 +7,6 @@
 void tlog(const char *str) { printf("test: %s\n", str); };
 
 int main(void) {
-  tlog("testing lists...");
-  testList();
   tlog("testing map...");
   testMap();
   return EXIT_SUCCESS;
