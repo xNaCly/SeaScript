@@ -1,9 +1,10 @@
 /*
 The map.h component exposes a very rudimentary hash table. The API makes use of
-SeaScriptResult.
+CsResult.
 
 The hash table hashes keys using the FNV-1a algorithm. It's used because its
-faster than the previously used multiplication hash algorithm.
+faster than the previously used multiplication hash algorithm and has a uniform
+distribution, which should keep hash colliosions to minimum.
 
     hash = FNV_OFFSET_BASIS
 
@@ -19,11 +20,14 @@ probing is performed if said bucket is already occupied. This can deteriorate
 the hash tables performance when putting or getting - mind the load factor for
 a healthy table.
 
+Beware, this will change in the feature - seperate chaining will be employed in
+the future.
+
 Guide for using this component:
 
 1. Create a new hash table:
 
-    SeaScriptMap *m = SeaScriptMapNew();
+    CsMap *m = CsMapNew();
 
 2. Put elements in the map:
 
@@ -31,14 +35,14 @@ Guide for using this component:
     *val1 = 25 * 25;
     double *val2 = malloc(sizeof(double));
     *val2 = 50 * 50;
-    SeaScriptMapPut(m, 25, val1);
-    SeaScriptMapPut(m, 50, val2);
+    CsMapPut(m, 25, val1);
+    CsMapPut(m, 50, val2);
 
 3. Get elements from the map:
 
 
-    double *r1 = (double *)SeaScriptResultUnwrap(SeaScriptMapGet(m, 25));
-    double *r2 = (double *)SeaScriptResultUnwrap(SeaScriptMapGet(m, 50));
+    double *r1 = (double *)CsUnwrap(CsMapGet(m, 25));
+    double *r2 = (double *)CsUnwrap(CsMapGet(m, 50));
 
     assert(*r1 == 25 * 25);
     assert(*r1 == 50 * 50);
@@ -55,7 +59,7 @@ typedef struct {
   const char *key;
   void *value;
   char hasValue;
-} SeaScriptMapElement;
+} CsMapElement;
 
 typedef struct {
   // elements count
@@ -63,26 +67,26 @@ typedef struct {
   // possible space
   int table_size;
   // buckets
-  SeaScriptMapElement *entries;
-} SeaScriptMap;
+  CsMapElement *entries;
+} CsMap;
 
 // allocates a new map, with size of INITIAL_SIZE, performs initial golden
 // ration computation
-SeaScriptMap *SeaScriptMapNew();
+CsMap *CsMapNew();
 
 // copies value, insert copy for key into map, mind the load factor!
-void SeaScriptMapPut(SeaScriptMap *map, const char *key, void *value);
+void CsMapPut(CsMap *map, const char *key, void *value);
 
 // checks if an object with the given key is present in the map
-bool SeaScriptMapContains(SeaScriptMap *m, const char *key);
+bool CsMapContains(CsMap *m, const char *key);
 
 // get a pointer to a value from the map by key
-SeaScriptResult *SeaScriptMapGet(SeaScriptMap *map, const char *key);
+CsResult *CsMapGet(CsMap *map, const char *key);
 
 // remove an object with the given key from the map
-void SeaScriptMapRemove(SeaScriptMap *map, const char *key);
+void CsMapRemove(CsMap *map, const char *key);
 
 // destroy the map, set point to NULL
-void SeaScriptMapFree(SeaScriptMap *map);
+void CsMapFree(CsMap *map);
 
 #endif
