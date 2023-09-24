@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 void testMap();
+void testSlice();
 
 void tlog(const char *str);
 

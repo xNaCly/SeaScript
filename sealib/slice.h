@@ -14,16 +14,18 @@ Features:
 #define SLICE_H
 
 #include "result.h"
-#include <stdint.h>
+#include <stddef.h>
 
-typedef struct {
+typedef struct CsSlice {
   // list of elements
   void **elements;
   // count of elements currenlty in list
-  int64_t len;
+  size_t len;
   // maxium size of Slice
-  int64_t cap;
+  size_t cap;
 } CsSlice;
+
+CsSlice *CsSliceNew(size_t initial_size);
 
 // adds an item to the underlying array, if s.len would be bigger than s.cap
 // after insertion, doubles the size of the underlying array
