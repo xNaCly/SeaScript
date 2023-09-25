@@ -15,6 +15,8 @@ CsSlice *CsSliceNew(size_t initial_size) {
   return s;
 }
 
+// duplicates the cap of the slice and the allocated space of the underlying
+// array
 static void grow_slice(CsSlice *s) {
   void **t = calloc(s->cap * 2, sizeof(void *));
   for (size_t i = 0; i < s->len; i++) {
@@ -48,3 +50,9 @@ CsResult *CsSliceGet(CsSlice *s, int index) {
 }
 
 void **CsSliceGetArray(CsSlice *s) { return s->elements; }
+
+void CsSliceFree(CsSlice *s) {
+  free(s->elements);
+  free(s);
+  s = NULL;
+}
