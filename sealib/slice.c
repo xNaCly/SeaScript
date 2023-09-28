@@ -9,7 +9,7 @@
 
 CsSlice *CsSliceNew(size_t initial_size) {
   CsSlice *s = malloc(sizeof(CsSlice));
-  s->elements = calloc(initial_size, sizeof(void *));
+  s->elements = malloc(initial_size * sizeof(void *));
   s->cap = initial_size < SLICE_MIN_SIZE ? SLICE_MIN_SIZE : initial_size;
   s->len = 0;
   return s;
@@ -18,7 +18,7 @@ CsSlice *CsSliceNew(size_t initial_size) {
 // duplicates the cap of the slice and the allocated space of the underlying
 // array
 static void grow_slice(CsSlice *s) {
-  void **t = calloc(s->cap * 2, sizeof(void *));
+  void **t = malloc(s->cap * 2 * sizeof(void *));
   for (size_t i = 0; i < s->len; i++) {
     t[i] = s->elements[i];
   }
