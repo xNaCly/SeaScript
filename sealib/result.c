@@ -4,7 +4,10 @@
 
 CsResult *CsSuccess(void *value) {
   CsResult *result = NULL;
-  result = malloc(sizeof(CsResult));
+  if (result = malloc(sizeof(CsResult)), result == NULL) {
+    fprintf(stderr, "sealib: failed to allocate result for success\n");
+    exit(EXIT_FAILURE);
+  };
   result->value = value;
   result->hasError = 0;
   return result;
@@ -12,7 +15,10 @@ CsResult *CsSuccess(void *value) {
 
 CsResult *CsError(const char *error) {
   CsResult *result = NULL;
-  result = malloc(sizeof(CsResult));
+  if (result = malloc(sizeof(CsResult)), result == NULL) {
+    fprintf(stderr, "sealib: failed to allocate result for error\n");
+    exit(EXIT_FAILURE);
+  };
   result->error = error;
   result->hasError = 1;
   return result;
@@ -23,7 +29,7 @@ void *CsExpect(CsResult *result, const char *error) {
     return NULL;
   if (result->hasError) {
     CsFreeResult(result);
-    fprintf(stderr, "err: %s\n", error);
+    fprintf(stderr, "sealib: %s\n", error);
     exit(EXIT_FAILURE);
   }
   void *value = result->value;
@@ -35,7 +41,7 @@ void *CsUnwrap(CsResult *result) {
   if (result == NULL)
     return NULL;
   if (result->hasError) {
-    fprintf(stderr, "err: %s\n", result->error);
+    fprintf(stderr, "sealib: %s\n", result->error);
     CsFreeResult(result);
     exit(EXIT_FAILURE);
   }

@@ -26,10 +26,20 @@ static unsigned int hash_key(CsMap *m, const char *key) {
 static double load_factor(CsMap *m) { return m->size / (double)m->table_size; }
 
 CsMap *CsMapNew() {
-  CsMap *m = malloc(sizeof(CsMap));
+  CsMap *m = NULL;
+  if (m = malloc(sizeof(CsMap)), m == NULL) {
+    fprintf(stderr, "sealib: %s\n", "failed to allocate hash table");
+    exit(EXIT_FAILURE);
+  }
   m->size = 0;
   m->table_size = INITIAL_SIZE;
-  m->entries = calloc(INITIAL_SIZE, sizeof(CsMapElement));
+  m->entries = NULL;
+  if (m->entries = calloc(INITIAL_SIZE, sizeof(CsMapElement)), m == NULL) {
+    fprintf(stderr, "sealib: %s\n",
+            "failed to allocate underlying buckets for hash table");
+    exit(EXIT_FAILURE);
+  }
+
   return m;
 };
 

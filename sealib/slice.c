@@ -8,8 +8,19 @@
 #define SLICE_MIN_SIZE 8
 
 CsSlice *CsSliceNew(size_t initial_size) {
-  CsSlice *s = malloc(sizeof(CsSlice));
-  s->elements = malloc(initial_size * sizeof(void *));
+  CsSlice *s = NULL;
+  if (s = malloc(sizeof(CsSlice)), s == NULL) {
+    fprintf(stderr, "sealib: failed to allocate a slice");
+    exit(EXIT_FAILURE);
+  }
+  s->elements = NULL;
+  if (s->elements = malloc(initial_size * sizeof(void *)),
+      s->elements == NULL) {
+    fprintf(stderr,
+            "sealib: failed to allocate the underlying array of size %zu\n",
+            initial_size);
+    exit(EXIT_FAILURE);
+  }
   s->cap = initial_size < SLICE_MIN_SIZE ? SLICE_MIN_SIZE : initial_size;
   s->len = 0;
   return s;
@@ -18,7 +29,14 @@ CsSlice *CsSliceNew(size_t initial_size) {
 // duplicates the cap of the slice and the allocated space of the underlying
 // array
 static void grow_slice(CsSlice *s) {
-  void **t = malloc(s->cap * 2 * sizeof(void *));
+  void **t = NULL;
+  if (t = malloc(s->cap * 2 * sizeof(void *)), t == NULL) {
+    fprintf(stderr,
+            "sealib: failed to grow the slice from %zu to %zu (allocation "
+            "failed)\n",
+            s->cap, s->cap * 2);
+    exit(EXIT_FAILURE);
+  }
   for (size_t i = 0; i < s->len; i++) {
     t[i] = s->elements[i];
   }

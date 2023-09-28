@@ -6,16 +6,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void printMap(CsMap *m) {
-  printf("[\n");
-  for (int i = 0; i < m->table_size; i++) {
-    CsMapElement e = m->entries[i];
-    if (e.hasValue) {
-      printf("\t{%s:%f},\n", e.key, *(double *)e.value);
-    }
-  }
-  printf("]\n");
-}
+/* static void printMap(CsMap *m) { */
+/*   printf("[\n"); */
+/*   for (int i = 0; i < m->table_size; i++) { */
+/*     CsMapElement e = m->entries[i]; */
+/*     if (e.hasValue) { */
+/*       printf("\t{%s:%f},\n", e.key, *(double *)e.value); */
+/*     } */
+/*   } */
+/*   printf("]\n"); */
+/* } */
 
 CsMap *createMap() {
   tlog("map creation");
@@ -90,7 +90,6 @@ void example() {
   double *r2 = (double *)CsUnwrap(CsMapGet(m, "test50"));
   assert(*r1 == 25 * 25);
   assert(*r2 == 50 * 50);
-  printMap(m);
   free(r1);
   free(r2);
   /* CsMapRemove(m, "test25"); */

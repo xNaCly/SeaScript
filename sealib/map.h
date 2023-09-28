@@ -55,12 +55,14 @@ Guide for using this component:
 #include <stdbool.h>
 #define INITIAL_SIZE 1024
 
+// Bucket, commonly stored in CsMap
 typedef struct {
   const char *key;
   void *value;
   char hasValue;
 } CsMapElement;
 
+// Hash table, allows for storing and retrieving data
 typedef struct {
   // elements count
   int size;
