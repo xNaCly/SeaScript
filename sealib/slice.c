@@ -14,6 +14,7 @@ CsSlice *CsSliceNew(size_t initial_size) {
     exit(EXIT_FAILURE);
   }
   s->elements = NULL;
+  initial_size = initial_size < SLICE_MIN_SIZE ? SLICE_MIN_SIZE : initial_size;
   if (s->elements = malloc(initial_size * sizeof(void *)),
       s->elements == NULL) {
     fprintf(stderr,
@@ -21,7 +22,7 @@ CsSlice *CsSliceNew(size_t initial_size) {
             initial_size);
     exit(EXIT_FAILURE);
   }
-  s->cap = initial_size < SLICE_MIN_SIZE ? SLICE_MIN_SIZE : initial_size;
+  s->cap = initial_size;
   s->len = 0;
   return s;
 }
