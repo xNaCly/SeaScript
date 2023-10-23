@@ -12,11 +12,12 @@ distribution, which should keep hash colliosions to minimum.
         hash *= FNV_PRIME
 
 Both FNV_PRIME and FNV_OFFSET_BASIS were taken from:
-https://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function#FNV-1a_hash .
+https:\/\/en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function#FNV-1a_hash .
 
 While inserting elements into the hash tables bucket, seperate chaining is
 performed if said bucket is already occupied, see
-https://en.wikipedia.org/wiki/Hash_table#Separate_chaining
+https:\/\/en.wikipedia.org/wiki/Hash_table#Separate_chaining. CsSlice is
+employed for separate chaining and bucket entry managment.
 
 Guide for using this component:
 

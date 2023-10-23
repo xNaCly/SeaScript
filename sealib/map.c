@@ -8,15 +8,17 @@
 const unsigned int FNV_OFFSET_BASIS = 0x811c9dc5;
 const unsigned int FNV_PRIME = 0x01000193;
 
-// see map.h preamble for hashing algorithm details
+// Computes a reproducible hash for the given key see map.h preamble for
+// hashing algorithm details
 static unsigned int hash_key(CsMap *m, const char *key) {
-  int length = strlen(key);
   unsigned int h = FNV_OFFSET_BASIS;
-  for (int i = 0; i < length; i++) {
-    h ^= (unsigned char)key[i];
+  while (*key) {
+    h ^= *key++;
     h *= FNV_PRIME;
   }
-  return h % m->table_size;
+  // This is a fast mod implementation, only works for powers of 2, see
+  // https://en.wikipedia.org/wiki/Modulo#Performance_issues
+  return h & (m->table_size - 1);
 }
 
 CsMap *CsMapNew() {
