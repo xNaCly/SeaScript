@@ -4,7 +4,8 @@ test = $(shell find ./sealib/test -name "*.c")
 flags = -Wall \
 		-std=c11 \
 		-g \
-		-O2
+		-O2 \
+
 make:
 	mkdir -p gen
 	go run . -i examples/main.sea -o gen/main.c -force -debug

@@ -100,7 +100,41 @@ void example() {
   CsMapRemove(m, "test50");
 }
 
+void stresstest() {
+  CsMap *m = CsMapNew();
+  int amount = 1e5;
+  for (int i = 1; i < amount; i++) {
+    char *result = malloc(sizeof(char) * 25);
+    sprintf(result, "test%d", i);
+    double *d = malloc(sizeof(double));
+    *d = i * i;
+    CsMapPut(m, result, d);
+  }
+
+  assert(m->size == (amount - 1));
+
+  for (int i = 1; i < amount; i++) {
+    char *result = malloc(sizeof(char) * 25);
+    sprintf(result, "test%d", i);
+    double *r = (double *)CsUnwrap(CsMapGet(m, result));
+    if (*r != i * i) {
+      printf("%s: %d*%d != %f\n", result, i, i, *r);
+    }
+    assert(*r == i * i);
+  }
+
+  for (int i = 1; i < amount; i++) {
+    char *result = malloc(sizeof(char) * 25);
+    sprintf(result, "test%d", i);
+    double *r = (double *)CsUnwrap(CsMapGet(m, result));
+
+    free(r);
+    CsMapRemove(m, result);
+  }
+}
+
 void testMap() {
+  stresstest();
   CsMap *m = createMap();
   appendMap(m);
   containsMap(m);

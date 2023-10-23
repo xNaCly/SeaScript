@@ -35,10 +35,6 @@ CsMap *CsMapNew() {
 };
 
 void CsMapPut(CsMap *m, const char *key, void *value) {
-  if (m->size == m->table_size) {
-    fprintf(stderr, "failed to put key %s into map - map full \n", key);
-    return;
-  }
   unsigned int hash = hash_key(m, key);
   CsMapElement *e = NULL;
   if (e = malloc(sizeof(CsMapElement)), e == NULL) {
