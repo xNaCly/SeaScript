@@ -6,16 +6,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* static void printMap(CsMap *m) { */
-/*   printf("[\n"); */
-/*   for (int i = 0; i < m->table_size; i++) { */
-/*     CsMapElement e = m->entries[i]; */
-/*     if (e.hasValue) { */
-/*       printf("\t{%s:%f},\n", e.key, *(double *)e.value); */
-/*     } */
-/*   } */
-/*   printf("]\n"); */
-/* } */
+static void printMap(CsMap *m) {
+  printf("[\n");
+  for (int i = 0; i < m->table_size; i++) {
+    CsSlice *s = m->buckets[i];
+    CsMapElement **arr = (CsMapElement **)s->elements;
+    for (int j = 0; j < s->len; j++) {
+      CsMapElement *e = arr[j];
+      if (e->hasValue) {
+        printf("\t{%s:%f},\n", e->key, *(double *)e->value);
+      }
+    }
+  }
+  printf("]\n");
+}
 
 CsMap *createMap() {
   tlog("map creation");
@@ -62,19 +66,18 @@ void getMap(CsMap *m) {
   }
 }
 
-/* void deleteMap(CsMap *m) { */
-/*   tlog("entry deletion"); */
-/*   for (int i = 1; i < 1000; i++) { */
-/*     char *result = malloc(sizeof(char) * 25); */
-/*     sprintf(result, "test%d", i); */
-/*     double *r = (double *)CsResultUnwrap(CsMapGet(m, result));
- */
+void deleteMap(CsMap *m) {
+  tlog("entry deletion");
+  for (int i = 1; i < 1000; i++) {
+    char *result = malloc(sizeof(char) * 25);
+    sprintf(result, "test%d", i);
+    double *r = (double *)CsUnwrap(CsMapGet(m, result));
 
-/*     free(r); */
-/*     CsMapRemove(m, result); */
-/*   } */
-/*   assert(m->size == 0); */
-/* } */
+    free(r);
+    CsMapRemove(m, result);
+  }
+  assert(m->size == 0);
+}
 
 void freeMap(CsMap *map) { CsMapFree(map); }
 
@@ -88,12 +91,13 @@ void example() {
   CsMapPut(m, "test50", val2);
   double *r1 = (double *)CsUnwrap(CsMapGet(m, "test25"));
   double *r2 = (double *)CsUnwrap(CsMapGet(m, "test50"));
+  printMap(m);
   assert(*r1 == 25 * 25);
   assert(*r2 == 50 * 50);
   free(r1);
   free(r2);
-  /* CsMapRemove(m, "test25"); */
-  /* CsMapRemove(m, "test50"); */
+  CsMapRemove(m, "test25");
+  CsMapRemove(m, "test50");
 }
 
 void testMap() {
@@ -101,7 +105,7 @@ void testMap() {
   appendMap(m);
   containsMap(m);
   getMap(m);
-  /* deleteMap(m); */
+  deleteMap(m);
   freeMap(m);
   example();
 }

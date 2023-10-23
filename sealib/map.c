@@ -1,5 +1,6 @@
 #include "map.h"
 #include "result.h"
+#include "slice.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,114 +19,87 @@ static unsigned int hash_key(CsMap *m, const char *key) {
   return h % m->table_size;
 }
 
-// The performance of the hash table deteriorates in relation to the load
-// factor, hash table should be resized and rehased if the load factor
-// approaches 1. Acceptable values are: a < 0.6, 0.6 < 0.75. Load factor is
-// determined by dividing the amount of current elements in the hash table by
-// the possible size of the hash table.
-static double load_factor(CsMap *m) { return m->size / (double)m->table_size; }
-
 CsMap *CsMapNew() {
   CsMap *m = NULL;
   if (m = malloc(sizeof(CsMap)), m == NULL) {
-    fprintf(stderr, "sealib: %s\n", "failed to allocate hash table");
-    exit(EXIT_FAILURE);
+    fprintf(stderr, "failed to malloc map");
+    return NULL;
   }
   m->size = 0;
   m->table_size = INITIAL_SIZE;
-  m->entries = NULL;
-  if (m->entries = calloc(INITIAL_SIZE, sizeof(CsMapElement)), m == NULL) {
-    fprintf(stderr, "sealib: %s\n",
-            "failed to allocate underlying buckets for hash table");
-    exit(EXIT_FAILURE);
+  m->buckets = (CsSlice **)malloc(sizeof(CsSlice) * INITIAL_SIZE);
+  for (int i = 0; i < INITIAL_SIZE; i++) {
+    m->buckets[i] = CsSliceNew(8);
   }
-
   return m;
 };
 
-bool CsMapContains(CsMap *m, const char *key) {
-  unsigned int hash = hash_key(m, key);
-  CsMapElement entry = m->entries[hash];
-  int i = 0;
-  while (entry.key != 0 && strcmp(key, entry.key) != 0) {
-    if (i >= m->table_size)
-      break;
-    hash = (hash + 1) % m->table_size;
-    entry = m->entries[hash];
-    i++;
-  }
-  if (entry.value == NULL)
-    return false;
-  return strcmp(key, entry.key) == 0;
-}
-
 void CsMapPut(CsMap *m, const char *key, void *value) {
-  if (m->size == m->table_size || load_factor(m) > 0.99) {
-    fprintf(
-        stderr,
-        "failed to put into map at key %s - map either full or deteriorated\n",
-        key);
+  if (m->size == m->table_size) {
+    fprintf(stderr, "failed to put key %s into map - map full \n", key);
     return;
   }
   unsigned int hash = hash_key(m, key);
-  CsMapElement entry = m->entries[hash];
-  int i = 0;
-  while (entry.hasValue && strcmp(key, entry.key) != 0) {
-    if (i >= m->table_size)
-      break;
-    hash = (hash + 1) % m->table_size;
-    entry = m->entries[hash];
-    i++;
+  CsMapElement *e = NULL;
+  if (e = malloc(sizeof(CsMapElement)), e == NULL) {
+    fprintf(stderr, "failed to allocate map element");
+    return;
   }
-  m->entries[hash].key = key;
-  m->entries[hash].value = value;
-  m->entries[hash].hasValue = 1;
+  e->hasValue = 1;
+  e->value = value;
+  e->key = key;
+  CsSliceAppend(m->buckets[hash], e);
   m->size++;
 };
 
 CsResult *CsMapGet(CsMap *m, const char *key) {
   unsigned int hash = hash_key(m, key);
-  CsMapElement entry = m->entries[hash];
-  int i = 0;
-  while (entry.key != 0 && strcmp(key, entry.key) != 0) {
-    if (i >= m->table_size)
-      break;
-    hash = (hash + 1) % m->table_size;
-    entry = m->entries[hash];
-    i++;
+  CsSlice *slice = m->buckets[hash];
+  CsMapElement **arr = (CsMapElement **)CsSliceGetArray(slice);
+  for (int i = 0; i < slice->len; i++) {
+    CsMapElement *t = arr[i];
+    if (t->hasValue && strcmp(t->key, key) == 0) {
+      return CsSuccess(t->value);
+    }
   }
-  if (entry.value == NULL) {
-    return CsError("key not found");
-  }
-
-  return CsSuccess(m->entries[hash].value);
+  return CsError("unknown key for map");
 }
 
-// TODO: fix this
-/* void CsMapRemove(CsMap *m, const char *key) { */
-/*   unsigned int hash = hash_key(m, key); */
-/*   CsMapElement entry = m->entries[hash]; */
-/*   int i = 0; */
-/*   while (entry.key != 0 && strcmp(key, entry.key) != 0) { */
-/*     if (i >= m->table_size) */
-/*       break; */
-/*     hash = (hash + 1) % m->table_size; */
-/*     entry = m->entries[hash]; */
-/*     i++; */
-/*   } */
-/*   if (entry.value == NULL || entry.hasValue == 0) */
-/*     return; */
-/*   m->entries[hash].key = 0; */
-/*   m->entries[hash].value = NULL; */
-/*   m->entries[hash].hasValue = 0; */
-/*   m->size--; */
-/* } */
+bool CsMapContains(CsMap *m, const char *key) {
+  unsigned int hash = hash_key(m, key);
+  CsSlice *slice = m->buckets[hash];
+  CsMapElement **arr = (CsMapElement **)CsSliceGetArray(slice);
+  for (int i = 0; i < slice->len; i++) {
+    CsMapElement *t = arr[i];
+    if (t->hasValue && strcmp(t->key, key) == 0) {
+      return true;
+    }
+  }
+  return false;
+}
+
+void CsMapRemove(CsMap *m, const char *key) {
+  unsigned int hash = hash_key(m, key);
+  CsSlice *slice = m->buckets[hash];
+  CsMapElement **arr = (CsMapElement **)CsSliceGetArray(slice);
+  for (int i = 0; i < slice->len; i++) {
+    CsMapElement *t = arr[i];
+    if (t->hasValue && strcmp(t->key, key) == 0) {
+      t->hasValue = 0;
+      t->value = 0;
+      t->key = 0;
+    }
+  }
+  m->size--;
+}
 
 void CsMapFree(CsMap *m) {
   if (m == NULL) {
     return;
   }
-  free(m->entries);
+  for (int i = 0; i < INITIAL_SIZE; i++) {
+    CsSliceFree(m->buckets[i]);
+  }
   free(m);
   m = NULL;
 };

@@ -1,6 +1,5 @@
 /*
-The map.h component exposes a very rudimentary hash table. The API makes use of
-CsResult.
+The map.h component exposes a hash table. The API makes use of CsResult.
 
 The hash table hashes keys using the FNV-1a algorithm. It's used because its
 faster than the previously used multiplication hash algorithm and has a uniform
@@ -15,13 +14,9 @@ distribution, which should keep hash colliosions to minimum.
 Both FNV_PRIME and FNV_OFFSET_BASIS were taken from:
 https://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function#FNV-1a_hash .
 
-While inserting elements into the hash tables bucket, linear
-probing is performed if said bucket is already occupied. This can deteriorate
-the hash tables performance when putting or getting - mind the load factor for
-a healthy table.
-
-Beware, this will change in the feature - seperate chaining will be employed in
-the future.
+While inserting elements into the hash tables bucket, seperate chaining is
+performed if said bucket is already occupied, see
+https://en.wikipedia.org/wiki/Hash_table#Separate_chaining
 
 Guide for using this component:
 
@@ -35,41 +30,44 @@ Guide for using this component:
     *val1 = 25 * 25;
     double *val2 = malloc(sizeof(double));
     *val2 = 50 * 50;
-    CsMapPut(m, 25, val1);
-    CsMapPut(m, 50, val2);
+    CsMapPut(m, "25", val1);
+    CsMapPut(m, "50", val2);
 
 3. Get elements from the map:
 
 
-    double *r1 = (double *)CsUnwrap(CsMapGet(m, 25));
-    double *r2 = (double *)CsUnwrap(CsMapGet(m, 50));
+    double *r1 = (double *)CsUnwrap(CsMapGet(m, "25"));
+    double *r2 = (double *)CsUnwrap(CsMapGet(m, "50"));
 
     assert(*r1 == 25 * 25);
     assert(*r1 == 50 * 50);
 
+4. Remove elements from the map:
+
+    (double *)CsMapRemove(m, "25");
+    (double *)CsMapRemove(m, "50");
  */
 #ifndef MAP_H
 #define MAP_H
 
 #include "result.h"
+#include "slice.h"
 #include <stdbool.h>
 #define INITIAL_SIZE 1024
 
-// Bucket, commonly stored in CsMap
-typedef struct {
+typedef struct CsMapElement {
   const char *key;
   void *value;
   char hasValue;
 } CsMapElement;
 
-// Hash table, allows for storing and retrieving data
-typedef struct {
+typedef struct CsMap {
   // elements count
   int size;
   // possible space
   int table_size;
   // buckets
-  CsMapElement *entries;
+  CsSlice **buckets;
 } CsMap;
 
 // allocates a new map, with size of INITIAL_SIZE, performs initial golden
